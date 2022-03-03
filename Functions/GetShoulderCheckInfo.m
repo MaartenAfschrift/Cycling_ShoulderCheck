@@ -1,6 +1,6 @@
 function [ShoulderCheckInfo] = GetShoulderCheckInfo(filename)
-%UNTITLED3 Summary of this function goes here
-%   Detailed explanation goes here
+%GetShoulderCheckInfo Reads all the information related to the shoulder
+%check task from the excel table (that was logged by the test leaders)
 
 opts = spreadsheetImportOptions('NumVariables',16);
 opts.DataRange = 'K4:Z44';

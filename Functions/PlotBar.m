@@ -1,6 +1,8 @@
 function [] = PlotBar(x,y,varargin)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+%PlotBar Default function to plot bar with individual datapoints
+%   input arguments
+%       (1) x: location on x-axis
+%       (2) y: vector with datapoints
 
 % default properties
 Cs = [0.6 0.6 0.6]; % default color

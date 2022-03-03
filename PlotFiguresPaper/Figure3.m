@@ -1,12 +1,15 @@
 %% Figure 3
 
 % path information
-ExcelFile = 'C:\Users\u0088756\Documents\FWO\Data\fietsproject\opmerkingen proefpersonen.xlsx';
-DatFile = 'C:\Users\u0088756\Documents\FWO\Data\fietsproject\ShouldCheckROM.mat';
-figPath = fullfile(pwd,'FigsPaper');
+[TempPath,~,~] = fileparts(mfilename('fullpath'));
+MainPath = TempPath(1:end-17);
+FileTaskInfo = fullfile(MainPath,'Data','TaskInformation.xlsx');
+
+% add functions to the matlab path
+addpath(genpath(fullfile(MainPath,'Functions')));
 
 % read the excel file with quantitative information
-[ShoulderCheckInfo] = GetShoulderCheckInfo(ExcelFile);
+[ShoulderCheckInfo] = GetShoulderCheckInfo(FileTaskInfo);
 
 % open a figure
 figure();

@@ -1,6 +1,6 @@
 function [eul] = GetEulAngles_ShoulderCheck(R)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+%GetEulAngles_ShoulderCheck Convert Rotation matrix to euler angles for the
+%shoulder check task
 Rnorm = nan(size(R));
 nfr = length(R(1,1,:));
 R0 = squeeze(R(:,:,1));

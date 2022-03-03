@@ -43,10 +43,13 @@ for s = 1:nPP
         disp(['Subject ' num2str(s) ' is both young and old. adapt this in the excel file']);
     end
     for f = 1:length(Folders)
+        % load the axis of rotation to compute the steering angle (this
+        % axis is computed in the script GetRotationAxisSteer_Subjects.m)
+        OutPathMat = fullfile(DataPath,ppPath,Folders{f});
+        RotAx = load(fullfile(OutPathMat,'RotAxis_Steer.mat'),'Rax','n_steer','n_frame');
         for i =1:length(OrderMeas)
             % load the data
-            OutName = [OrderMeas{i} '_data.mat'];
-            OutPathMat = fullfile(DataPath,ppPath,Folders{f});
+            OutName = [OrderMeas{i} '_data.mat'];            
             filename = fullfile(OutPathMat,OutName);
             if exist(filename,'file')
                 load(filename,'Data','GUIvar','Events');
@@ -124,7 +127,6 @@ for s = 1:nPP
                                 Q_PelvisFrame = eulPelvis_int - eulframe;
                                 Q_TorsoPelvis = eulTorso_int -eulPelvis_int;
                             end
-
                             % get data in selected time window
                             t0 = Events.ShoulderCheck(1) - 0.5; % start 0.5s before detected start
                             tend = Events.ShoulderCheck(2) + 0.5; % end 0.5s after detected end
@@ -135,23 +137,30 @@ for s = 1:nPP
                             if isempty(ROM)
                                 ROM = NaN;
                             end
-
-                            % steering angle
-                            t = Data.SteerAngle.t;
-                            iSelSteer = find(t>t0 & t<tend);
-                            q = Data.SteerAngle.qSteer(:,1); % steer angle aroud x-axis
+                            % compute steering angle from axis
+                            if  (length(Data.Frame.t) ~= length(Data.Steer.t)) || (any((Data.Frame.t-Data.Steer.t)~=0))
+                                [Data.Frame.Rint, Data.Steer.Rint, tint] = InterpolateRotMatrices(Data.Frame.R,Data.Steer.R,Data.Frame.t,Data.Steer.t);
+                                disp(['Interpolated rotation matrices for file: ' filename]);
+                            else
+                                Data.Frame.Rint = Data.Frame.R;
+                                Data.Steer.Rint = Data.Steer.R;
+                                tint = Data.Frame.t;
+                            end
+                            [SteerAngle.q] = GetAngleSteer(Data.Frame.Rint,Data.Steer.Rint,RotAx.Rax);
+                            SteerAngle.t = tint;
+                            % get standard deviation in steering angle
+                            iSelSteer = find(tint>t0 & tint<tend);
+                            q = Data.SteerAngle.qSteer(:,1);
                             qVarDeg = std(q(iSelSteer)*180/pi);
                             if qVarDeg >20 % variances above 20 deg are impossible during this task
                                 disp(['possible error in file: ' filename ' remove this file from the analysis']);
                                 qVarDeg = NaN;
                             end
-
                             % correlation between steering angle
                             % and orientation of the torso
                             eulTorso_intSteer = interp1(ttorso,eulTorso(:,1),Data.SteerAngle.t(iSelSteer))';
                             qSteer = q(iSelSteer,1);
                             rho = corr(eulTorso_intSteer,qSteer);
-
                             if isfield(GUIvar,'Shoulder_Drift') && ~GUIvar.Shoulder_Drift && ~BoolPelvisError
                                 [MinQ2,iMin] = nanmin(Q_PelvisFrame(iSel,1));
                                 [MaxQ2,iMax] = nanmax(Q_PelvisFrame(iSel,1));

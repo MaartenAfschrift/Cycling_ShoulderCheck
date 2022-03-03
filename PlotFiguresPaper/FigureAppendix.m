@@ -12,7 +12,7 @@ SensorOr = load(fullfile(MainPath,'Outcomes','ShouldCheckROM.mat'),'DataMatrix',
 % path to save figures
 figPath = fullfile(MainPath,'Outcomes','FigsPaper');
 
-%% FIgure steering angle
+%% Figure steering angle
 
 h = figure();
 set(h,'Position',[113   394   765   623]);
